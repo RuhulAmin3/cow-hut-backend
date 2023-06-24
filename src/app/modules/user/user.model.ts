@@ -1,7 +1,9 @@
+import bcrypt from "bcrypt";
 import { Schema, model } from "mongoose";
-import { IUser, UserModel } from "./user.interface";
+import { IUser, IUserMethods, UserModel } from "./user.interface";
+import config from "../../../config";
 
-const userSchema = new Schema<IUser, UserModel>(
+const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
     name: {
       type: {
@@ -54,5 +56,27 @@ const userSchema = new Schema<IUser, UserModel>(
     },
   }
 );
+
+userSchema.methods.isUserExist = async function (
+  phoneNumber: string
+): Promise<IUser | null> {
+  return await User.findOne({ phoneNumber });
+};
+
+userSchema.statics.isPasswordCorrect = async function (
+  savedPassword: string,
+  givenPassword: string
+): Promise<boolean> {
+  console.log("savedPassword:", savedPassword, "givenPassword:", givenPassword);
+  return await bcrypt.compare(givenPassword, savedPassword);
+};
+
+userSchema.pre("save", async function (next) {
+  this.password = await bcrypt.hash(
+    this.password,
+    Number(config.bcrypt_solt_label)
+  );
+  next();
+});
 
 export const User = model<IUser, UserModel>("user", userSchema);

@@ -20,6 +20,13 @@ export const createOrderService = async (
     );
   }
 
+  if (cowDetails && cowDetails.label === "sold out") {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "this cow is sold out choose another cow"
+    );
+  }
+
   const session = await mongoose.startSession();
   let orderData = null;
   try {

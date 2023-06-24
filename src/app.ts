@@ -11,9 +11,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v1/", router);
+
 app.get("/", (req: Request, res: Response) => {
   res.send("In the name of Allah");
 });
+
 app.all("*", (req, res, next) => {
   const err = new ApiError(
     httpStatus.NOT_FOUND,

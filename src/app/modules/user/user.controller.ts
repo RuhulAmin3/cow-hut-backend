@@ -9,7 +9,9 @@ import {
   getSingleUserService,
   deleteUserService,
   updateUserService,
+  loginUserService,
 } from "./user.service";
+import config from "../../../config";
 
 export const createUserController = catchAsync(
   async (req: Request, res: Response) => {
@@ -72,6 +74,25 @@ export const deleteUserController = catchAsync(
       statusCode: httpStatus.OK,
       message: "user deleted successfully",
       data: result,
+    });
+  }
+);
+
+export const loginUserController = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await loginUserService(req.body);
+
+    const cookieOption = {
+      secure: config.env === "production",
+      httpOnly: false,
+    };
+
+    res.cookie("refreshToken", result.refreshToken, cookieOption);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "user login successful",
+      data: { accessToken: result.accessToken },
     });
   }
 );

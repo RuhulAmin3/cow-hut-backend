@@ -6,14 +6,24 @@ import {
   getSingleUserController,
   updateUserController,
   deleteUserController,
+  loginUserController,
 } from "./user.controller";
-import { updateUserZodSchema, userZodSchema } from "./user.validation";
+import {
+  updateUserZodSchema,
+  userZodSchema,
+  loginUserZodSchema,
+} from "./user.validation";
 const router = express.Router();
 
 router.post(
   "/auth/signup",
   validationRequest(userZodSchema),
   createUserController
+);
+router.post(
+  "/auth/login",
+  validationRequest(loginUserZodSchema),
+  loginUserController
 );
 router.get("/users/:id", getSingleUserController);
 router.patch(

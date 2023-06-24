@@ -1,3 +1,4 @@
+import { JwtPayload } from "jsonwebtoken";
 import { Model } from "mongoose";
 
 type UserName = {
@@ -5,6 +6,7 @@ type UserName = {
   middleName?: string;
   lastName?: string;
 };
+
 export type IUser = {
   name: UserName;
   password: string;
@@ -15,7 +17,19 @@ export type IUser = {
   income: number;
 };
 
-export type UserModel = Model<IUser, Record<string, unknown>>;
+export type IUserMethods = {
+  // here we declared our instance methods
+  isUserExist(phoneNumber: string): Promise<IUser | null>;
+} & IUser;
+
+export type UserModel = {
+  isPasswordCorrect( // here we can declared our statics methods and merge methods
+    savedPassword: string,
+    givenPassword: string
+  ): Promise<boolean>;
+} & Model<IUser, object, IUserMethods>;
+
+// export type UserModel = Model<IUser, Record<string, unknown>>;
 
 export type IUserFilterData = {
   restQuery?: {
@@ -27,4 +41,14 @@ export type IUserFilterData = {
   sortBy?: string;
   searchTerm?: string;
   sortOrder?: "asc" | "desc";
+};
+
+export type ILogin = {
+  phoneNumber: string;
+  password: string;
+};
+
+export type ILoginResponse = {
+  accessToken: JwtPayload;
+  refreshToken: JwtPayload;
 };

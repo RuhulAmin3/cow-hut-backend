@@ -46,3 +46,14 @@ export const updateUserZodSchema = z.object({
     income: z.number().optional(),
   }),
 });
+
+export const loginUserZodSchema = z.object({
+  body: z.object({
+    phoneNumber: z.string({
+      required_error: "phone number is required",
+    }),
+    password: z.string({
+      required_error: "password is required",
+    }),
+  }),
+});
