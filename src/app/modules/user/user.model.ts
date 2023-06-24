@@ -2,6 +2,8 @@ import bcrypt from "bcrypt";
 import { Schema, model } from "mongoose";
 import { IUser, IUserMethods, UserModel } from "./user.interface";
 import config from "../../../config";
+import { ApiError } from "../../../error/ApiError";
+import httpStatus from "http-status";
 
 const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
@@ -72,10 +74,15 @@ userSchema.statics.isPasswordCorrect = async function (
 };
 
 userSchema.pre("save", async function (next) {
+  const user = await User.findOne({ phoneNumber: this.phoneNumber });
+  if (user) {
+    throw new ApiError(httpStatus.CONFLICT, "user already exist");
+  }
   this.password = await bcrypt.hash(
     this.password,
     Number(config.bcrypt_solt_label)
   );
+
   next();
 });
 

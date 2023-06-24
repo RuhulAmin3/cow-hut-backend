@@ -1,4 +1,3 @@
-import { JwtPayload } from "jsonwebtoken";
 import { Model } from "mongoose";
 
 type UserName = {
@@ -41,14 +40,4 @@ export type IUserFilterData = {
   sortBy?: string;
   searchTerm?: string;
   sortOrder?: "asc" | "desc";
-};
-
-export type ILogin = {
-  phoneNumber: string;
-  password: string;
-};
-
-export type ILoginResponse = {
-  accessToken: JwtPayload;
-  refreshToken: JwtPayload;
 };
