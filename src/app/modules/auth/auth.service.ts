@@ -3,7 +3,7 @@ import { ApiError } from "../../../error/ApiError";
 import { IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
 import { ILogin, ILoginResponse } from "./auth.interface";
-import { createToken } from "../../../utils/jwtHelpers";
+import { createToken, varifyToken } from "../../../utils/jwtHelpers";
 import config from "../../../config";
 import { Secret } from "jsonwebtoken";
 
@@ -47,4 +47,27 @@ export const loginUserService = async (
     accessToken,
     refreshToken,
   };
+};
+
+export const refreshTokenService = async (token: string): Promise<string> => {
+  let decodedData = null;
+  try {
+    decodedData = varifyToken(token, config.jwt.refresh_secret as Secret);
+  } catch (err) {
+    throw new ApiError(httpStatus.FORBIDDEN, "refresh token is not valid");
+  }
+
+  const { id } = decodedData;
+  const user = await User.findById(id);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "user does not exist");
+  }
+
+  const accessToken = createToken(
+    { id: user._id, role: user.role },
+    config.jwt.secret as Secret,
+    config.jwt.expires_in as string
+  );
+
+  return accessToken;
 };

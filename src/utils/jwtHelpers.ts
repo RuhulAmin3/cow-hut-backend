@@ -10,8 +10,12 @@ export const createToken = (
   data: IJwtData,
   secret: Secret,
   expireTime: string
-): JwtPayload => {
+): string => {
   return jwt.sign(data, secret, {
     expiresIn: expireTime,
-  }) as unknown as JwtPayload;
+  });
+};
+
+export const varifyToken = (token: string, secret: Secret): JwtPayload => {
+  return jwt.verify(token, secret) as JwtPayload;
 };

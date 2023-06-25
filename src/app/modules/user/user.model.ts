@@ -69,7 +69,6 @@ userSchema.statics.isPasswordCorrect = async function (
   savedPassword: string,
   givenPassword: string
 ): Promise<boolean> {
-  console.log("savedPassword:", savedPassword, "givenPassword:", givenPassword);
   return await bcrypt.compare(givenPassword, savedPassword);
 };
 

@@ -1,7 +1,16 @@
 import express from "express";
 import { validationRequest } from "../../middlewares/validationRequest";
-import { loginUserZodSchema, userSignupZodSchema } from "./auth.validation";
-import { createUserController, loginUserController } from "./auth.controller";
+import {
+  loginUserZodSchema,
+  userSignupZodSchema,
+  refreshTokenZodSchema,
+} from "./auth.validation";
+
+import {
+  createUserController,
+  loginUserController,
+  refreshTokenController,
+} from "./auth.controller";
 
 const router = express.Router();
 
@@ -12,10 +21,15 @@ router.post(
 );
 
 router.post(
-  "/auth/login",
+  "/login",
   validationRequest(loginUserZodSchema),
   loginUserController
 );
-router.post("/refresh-token");
+
+router.post(
+  "/refresh-token",
+  // validationRequest(refreshTokenZodSchema),
+  refreshTokenController
+);
 
 export default router;
