@@ -21,7 +21,8 @@ export const createOrderController = catchAsync(
 
 export const getAllOrderController = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await getAllOrderService();
+    const user = req.user;
+    const result = await getAllOrderService(user);
 
     sendResponse<IOrder[]>(res, {
       success: true,

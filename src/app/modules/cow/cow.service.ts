@@ -5,6 +5,9 @@ import { cowFilterAbleFields } from "./cow.constant";
 import { ICow, ICowFilters } from "./cow.interface";
 import { Cow } from "./cow.model";
 import { IGenericResponse } from "../../../types/genericResponse";
+import { JwtPayload } from "jsonwebtoken";
+import { ApiError } from "../../../error/ApiError";
+import httpStatus from "http-status";
 
 export const createCowService = async (data: ICow): Promise<ICow> => {
   const result = await Cow.create(data);
@@ -87,13 +90,35 @@ export const getAllCowService = async (
 
 export const updateCowService = async (
   id: string,
-  data: ICow
+  data: ICow,
+  user: JwtPayload
 ): Promise<ICow | null> => {
-  const result = await Cow.findByIdAndUpdate(id, data, { new: true });
+  // const result = await Cow.findByIdAndUpdate(id, data, { new: true });
+
+  const cow = await Cow.findOne({ _id: id, seller: user.id });
+  if (!cow) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      "this is not your cow. you can only update your cow"
+    );
+  }
+
+  const result = await Cow.findOneAndUpdate(
+    { _id: id, seller: user.id },
+    data,
+    { new: true }
+  );
   return result;
 };
 
-export const deleteCowService = async (id: string) => {
-  const result = await Cow.findByIdAndDelete(id);
+export const deleteCowService = async (id: string, user: JwtPayload) => {
+  const cow = await Cow.findOne({ _id: id, seller: user.id });
+  if (!cow) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      "this is not your cow. you can only delete your cow"
+    );
+  }
+  const result = await Cow.findOneAndUpdate({ _id: id, seller: user.id });
   return result;
 };

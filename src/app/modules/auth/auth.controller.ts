@@ -38,8 +38,6 @@ export const loginUserController = catchAsync(
       message: "user logged in successfully",
       data: { accessToken: result.accessToken },
     });
-
-    console.log(req.cookies);
   }
 );
 

@@ -10,6 +10,7 @@ import {
   updateCowService,
   getAllCowService,
 } from "./cow.service";
+import { JwtPayload } from "jsonwebtoken";
 
 export const createCowController = catchAsync(
   async (req: Request, res: Response) => {
@@ -41,7 +42,11 @@ export const updateCowController = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const updatedData = req.body;
-    const result = await updateCowService(id, updatedData);
+    const result = await updateCowService(
+      id,
+      updatedData,
+      req.user as JwtPayload
+    );
     sendResponse<ICow>(res, {
       success: true,
       statusCode: httpStatus.OK,
@@ -50,10 +55,11 @@ export const updateCowController = catchAsync(
     });
   }
 );
+
 export const deleteCowController = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
-    const result = await deleteCowService(id);
+    const result = await deleteCowService(id, req.user as JwtPayload);
     sendResponse<ICow>(res, {
       success: true,
       statusCode: httpStatus.OK,

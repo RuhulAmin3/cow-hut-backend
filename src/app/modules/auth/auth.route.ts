@@ -28,7 +28,7 @@ router.post(
 
 router.post(
   "/refresh-token",
-  // validationRequest(refreshTokenZodSchema),
+  validationRequest(refreshTokenZodSchema),
   refreshTokenController
 );
 

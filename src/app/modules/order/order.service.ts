@@ -6,6 +6,8 @@ import { User } from "../user/user.model";
 import { IOrder } from "./order.interface";
 import mongoose from "mongoose";
 import { Order } from "./order.model";
+import { USER_ROLE } from "../../../enums/enum";
+import { JwtPayload } from "jsonwebtoken";
 
 export const createOrderService = async (
   data: IOrder
@@ -60,7 +62,12 @@ export const createOrderService = async (
   return orderData;
 };
 
-export const getAllOrderService = async (): Promise<IOrder[]> => {
-  const result = await Order.find();
+export const getAllOrderService = async (
+  user: JwtPayload | null
+): Promise<IOrder[] | null> => {
+  let result = null;
+  if (user && user.role === USER_ROLE.BUYER) {
+    result = await Order.find({ buyer: user._id });
+  }
   return result;
 };
