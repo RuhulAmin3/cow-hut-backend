@@ -4,6 +4,7 @@ import { IOrder } from "./order.interface";
 import httpStatus from "http-status";
 import { sendResponse } from "../../../shared/sendResponse";
 import { createOrderService, getAllOrderService } from "./order.service";
+import { JwtPayload } from "jsonwebtoken";
 
 export const createOrderController = catchAsync(
   async (req: Request, res: Response) => {
@@ -22,7 +23,7 @@ export const createOrderController = catchAsync(
 export const getAllOrderController = catchAsync(
   async (req: Request, res: Response) => {
     const user = req.user;
-    const result = await getAllOrderService(user);
+    const result = await getAllOrderService(user as JwtPayload);
 
     sendResponse<IOrder[]>(res, {
       success: true,

@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { SortOrder } from "mongoose";
 import { calculatePagination } from "../../../shared/caculatePagination";
-import { IUserFilterData, IUser } from "./user.interface";
+import { IUserFilterData, IUser, IProfile } from "./user.interface";
 import { User } from "./user.model";
 import { userFilterAbleFields } from "./user.constant";
+import { JwtPayload } from "jsonwebtoken";
 
 export const createUserService = async (data: IUser): Promise<IUser> => {
   const result = await User.create(data);
@@ -66,7 +67,6 @@ export const updateUserService = async (
 ): Promise<IUser | null> => {
   const { name, ...restData } = data;
   const userData = { ...restData };
-
   if (Object.keys(name).length > 0) {
     Object.keys(name).map((key) => {
       const userNameKey = `name.${key}` as keyof typeof name;
@@ -81,5 +81,32 @@ export const updateUserService = async (
 
 export const deleteUserService = async (id: string): Promise<IUser | null> => {
   const result = await User.findOneAndDelete({ _id: id });
+  return result;
+};
+
+export const profileService = async (
+  user: JwtPayload
+): Promise<IUser | null> => {
+  const { id, role } = user;
+  const result = await User.findOne({ _id: id, role });
+  return result;
+};
+
+export const updateProfileService = async (
+  user: JwtPayload,
+  data: IProfile
+): Promise<IUser | null> => {
+  const { name, ...restData } = data;
+  const { id, role } = user;
+  const updatedData = { restData };
+
+  Object.keys(name).map((key) => {
+    const namedKey = `name.${key}`;
+    (updatedData as any)[namedKey] = name[key as keyof typeof name];
+  });
+
+  const result = await User.findByIdAndUpdate({ _id: id, role }, updatedData, {
+    new: true,
+  });
   return result;
 };

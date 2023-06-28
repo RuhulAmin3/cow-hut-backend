@@ -41,3 +41,14 @@ export type IUserFilterData = {
   searchTerm?: string;
   sortOrder?: "asc" | "desc";
 };
+
+export type IProfile = {
+  password?: string;
+  name: {
+    firstName: string;
+    middleName: string;
+    lastName: string;
+  };
+  phoneNumber: string;
+  address: string;
+};

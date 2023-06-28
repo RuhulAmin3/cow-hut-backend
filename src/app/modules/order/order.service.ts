@@ -63,11 +63,17 @@ export const createOrderService = async (
 };
 
 export const getAllOrderService = async (
-  user: JwtPayload | null
+  user: JwtPayload
 ): Promise<IOrder[] | null> => {
   let result = null;
-  if (user && user.role === USER_ROLE.BUYER) {
-    result = await Order.find({ buyer: user._id });
+  if (user.role === USER_ROLE.BUYER) {
+    result = await Order.find({ buyer: user.id });
+  } else if (user.role === USER_ROLE.SELLER) {
+    const allOrders = await Order.find({}).populate({ path: "seller" });
+
+    // result = await Order.find({ "cow.seller": user.id });
+  } else {
+    result = await Order.find({});
   }
   return result;
 };
