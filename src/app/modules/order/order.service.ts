@@ -86,3 +86,18 @@ export const getAllOrderService = async (
   }
   return result;
 };
+
+export const getSingleOrderService = async (
+  user: JwtPayload,
+  id: string
+): Promise<IOrder | null> => {
+  const order = await Order.findById(id).populate("cow").populate("buyer");
+  console.log(order);
+  if (order && order.buyer._id != user.id) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "you are not owner of the order"
+    );
+  }
+  return order;
+};
