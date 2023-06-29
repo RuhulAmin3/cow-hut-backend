@@ -7,6 +7,7 @@ import {
   createAdminService,
   adminLoginService,
   getAdminProfileService,
+  updateAdminProfileService,
 } from "./admin.service";
 import { IAdmin } from "./admin.interface";
 import config from "../../../config";
@@ -56,6 +57,26 @@ export const getAdminProfileController = catchAsync(
       success: true,
       statusCode: httpStatus.OK,
       message: "admin profile retrieved successfully",
+      data: result,
+    });
+  }
+);
+
+export const updateAdminProfileController = catchAsync(
+  async (req: Request, res: Response) => {
+    const user = req.user;
+    const { id } = req.params;
+    const data = req.body;
+    const result = await updateAdminProfileService(
+      user as JwtPayload,
+      id,
+      data
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "admin profile updated successfully",
       data: result,
     });
   }

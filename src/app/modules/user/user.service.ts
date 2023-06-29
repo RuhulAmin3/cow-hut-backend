@@ -110,11 +110,12 @@ export const updateProfileService = async (
   const { id, role } = user;
   const updatedData = { ...restData, password: hashPassword };
 
-  Object.keys(name).map((key) => {
-    const namedKey = `name.${key}`;
-    (updatedData as any)[namedKey] = name[key as keyof typeof name];
-  });
-
+  if (name && Object.keys(name).length > 0) {
+    Object.keys(name).forEach((key) => {
+      const namedKey = `name.${key}`;
+      (updatedData as any)[namedKey] = name[key as keyof typeof name];
+    });
+  }
   const result = await User.findByIdAndUpdate({ _id: id, role }, updatedData, {
     new: true,
   });

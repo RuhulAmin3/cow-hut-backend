@@ -36,3 +36,19 @@ export const adminLoginZodSchema = z.object({
     }),
   }),
 });
+
+export const updateAdminProfileZodSchema = z.object({
+  body: z.object({
+    phoneNumber: z.string().optional(),
+    password: z.string().optional(),
+    role: z.string().optional(),
+    name: z
+      .object({
+        firstName: z.string().optional(),
+        middleName: z.string().optional(),
+        lastName: z.string().optional(),
+      })
+      .optional(),
+    address: z.string().optional(),
+  }),
+});

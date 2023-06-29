@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import bcrypt from "bcrypt";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import httpStatus from "http-status";
 import { ApiError } from "../../../error/ApiError";
@@ -47,4 +49,48 @@ export const getAdminProfileService = async (user: JwtPayload) => {
   const { id, role } = user;
   const result = await Admin.findOne({ _id: id, role });
   return result;
+};
+
+export const updateAdminProfileService = async (
+  user: JwtPayload,
+  id: string,
+  data: IAdmin
+): Promise<IAdmin | null> => {
+  const { name, password, ...restData } = data;
+  const admin = await Admin.findOne({ _id: user.id, role: user.role });
+  if (!admin) {
+    throw new ApiError(httpStatus.NOT_FOUND, "admin does not exist");
+  }
+
+  if (admin && user.id != admin.id) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "you cannot update this account."
+    );
+  }
+
+  let hashPassword = password;
+  if (password) {
+    hashPassword = await bcrypt.hash(
+      password,
+      Number(config.bcrypt_solt_label)
+    );
+  }
+
+  const updateData = { restData, password: hashPassword };
+  if (name && Object.keys(name).length > 0) {
+    Object.keys(name).forEach((key) => {
+      const nameKey = `name.${key}`;
+      (updateData as any)[nameKey] = name[key as keyof typeof name];
+    });
+  }
+  const updatedAdmin = await Admin.findOneAndUpdate(
+    {
+      _id: user.id,
+      role: user.role,
+    },
+    updateData,
+    { new: true }
+  );
+  return updatedAdmin;
 };
