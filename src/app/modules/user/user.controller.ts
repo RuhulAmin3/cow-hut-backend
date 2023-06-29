@@ -69,7 +69,6 @@ export const deleteUserController = catchAsync(
 export const profileController = catchAsync(
   async (req: Request, res: Response) => {
     const user = req.user;
-    console.log(user);
     const result = await profileService(user as JwtPayload);
 
     sendResponse<IUser>(res, {
