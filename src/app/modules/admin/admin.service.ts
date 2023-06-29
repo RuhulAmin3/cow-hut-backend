@@ -62,7 +62,7 @@ export const updateAdminProfileService = async (
   user: JwtPayload,
   id: string,
   data: IAdmin
-): Promise<IAdmin | null> => {
+): Promise<Partial<IAdmin | null>> => {
   const { name, password, ...restData } = data;
   const admin = await Admin.findOne({ _id: user.id, role: user.role });
   if (!admin) {
@@ -84,13 +84,14 @@ export const updateAdminProfileService = async (
     );
   }
 
-  const updateData = { restData, password: hashPassword };
+  const updateData = { ...restData, password: hashPassword };
   if (name && Object.keys(name).length > 0) {
     Object.keys(name).forEach((key) => {
       const nameKey = `name.${key}`;
       (updateData as any)[nameKey] = name[key as keyof typeof name];
     });
   }
+
   const updatedAdmin = await Admin.findOneAndUpdate(
     {
       _id: user.id,
@@ -99,5 +100,14 @@ export const updateAdminProfileService = async (
     updateData,
     { new: true }
   );
-  return updatedAdmin;
+  if (!updatedAdmin) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      "failed to update admin profile informaiton"
+    );
+  }
+
+  const { password: updatePassword, ...restUpdateAdminData } =
+    updatedAdmin.toObject();
+  return restUpdateAdminData;
 };
