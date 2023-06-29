@@ -15,6 +15,7 @@ export const createOrderService = async (
   const { cow: cowId, buyer: buyerId } = data;
   const cowDetails = await Cow.findById(cowId);
   const buyerDetails = await User.findById(buyerId);
+
   if (cowDetails && buyerDetails && cowDetails?.price > buyerDetails?.budget) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
@@ -67,13 +68,21 @@ export const getAllOrderService = async (
 ): Promise<IOrder[] | null> => {
   let result = null;
   if (user.role === USER_ROLE.BUYER) {
-    result = await Order.find({ buyer: user.id });
+    result = await Order.find({ buyer: user.id }).populate({
+      path: "cow",
+      populate: [{ path: "seller" }],
+    });
   } else if (user.role === USER_ROLE.SELLER) {
-    const allOrders = await Order.find({}).populate({ path: "seller" });
-
-    // result = await Order.find({ "cow.seller": user.id });
+    const allOrders = await Order.find({}).populate({
+      path: "cow",
+      populate: [{ path: "seller" }],
+    });
+    result = allOrders.filter((order) => order.cow.seller.id === user.id);
   } else {
-    result = await Order.find({});
+    result = await Order.find({}).populate({
+      path: "cow",
+      populate: [{ path: "seller" }],
+    });
   }
   return result;
 };

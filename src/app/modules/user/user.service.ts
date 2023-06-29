@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { SortOrder } from "mongoose";
 import { calculatePagination } from "../../../shared/caculatePagination";
@@ -5,6 +6,7 @@ import { IUserFilterData, IUser, IProfile } from "./user.interface";
 import { User } from "./user.model";
 import { userFilterAbleFields } from "./user.constant";
 import { JwtPayload } from "jsonwebtoken";
+import config from "../../../config";
 
 export const createUserService = async (data: IUser): Promise<IUser> => {
   const result = await User.create(data);
@@ -84,6 +86,7 @@ export const deleteUserService = async (id: string): Promise<IUser | null> => {
   return result;
 };
 
+// profile services
 export const profileService = async (
   user: JwtPayload
 ): Promise<IUser | null> => {
@@ -96,9 +99,16 @@ export const updateProfileService = async (
   user: JwtPayload,
   data: IProfile
 ): Promise<IUser | null> => {
-  const { name, ...restData } = data;
+  const { password, name, ...restData } = data;
+  let hashPassword = password;
+  if (password) {
+    hashPassword = await bcrypt.hash(
+      password as string,
+      Number(config.bcrypt_solt_label)
+    );
+  }
   const { id, role } = user;
-  const updatedData = { restData };
+  const updatedData = { ...restData, password: hashPassword };
 
   Object.keys(name).map((key) => {
     const namedKey = `name.${key}`;

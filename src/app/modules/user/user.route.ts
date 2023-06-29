@@ -16,13 +16,14 @@ const router = express.Router();
 router.get("/", auth(USER_ROLE.ADMIN), getAllUserController);
 router.get(
   "/my-profile",
-  auth(USER_ROLE.ADMIN, USER_ROLE.BUYER, USER_ROLE.SELLER),
+  auth(USER_ROLE.BUYER, USER_ROLE.SELLER),
   profileController
 );
 
 router.patch(
   "/my-profile",
   validationRequest(updateProfileZodSchema),
+  auth(USER_ROLE.BUYER, USER_ROLE.SELLER),
   updateProfileController
 );
 

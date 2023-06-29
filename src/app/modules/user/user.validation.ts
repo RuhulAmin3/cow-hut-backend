@@ -30,6 +30,9 @@ export const updateProfileZodSchema = z.object({
       .optional(),
     password: z.string().optional(),
     phoneNumber: z.string().optional(),
+    role: z.enum(role as [string, ...string[]]).optional(),
     address: z.string().optional(),
+    budget: z.number().optional(),
+    income: z.number().optional(),
   }),
 });
