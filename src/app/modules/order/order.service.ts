@@ -105,6 +105,7 @@ export const getSingleOrderService = async (
       );
     }
   }
+
   if (user.role === USER_ROLE.BUYER) {
     if (order && order.buyer.id != user.id) {
       throw new ApiError(

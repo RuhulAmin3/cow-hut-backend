@@ -1,4 +1,3 @@
-import { JwtPayload } from "jsonwebtoken";
 import { Model } from "mongoose";
 
 type AdminName = {
@@ -22,6 +21,6 @@ export type IAdminLoginData = {
 };
 
 export type IAdminLoginResponse = {
-  accessToken?: JwtPayload;
-  refreshToken?: JwtPayload;
+  accessToken?: string;
+  refreshToken?: string;
 };

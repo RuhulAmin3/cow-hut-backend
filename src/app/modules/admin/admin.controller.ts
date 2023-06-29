@@ -3,9 +3,14 @@ import { Request, Response } from "express";
 import { catchAsync } from "../../../shared/catchAsync";
 import { sendResponse } from "../../../shared/sendResponse";
 import httpStatus from "http-status";
-import { createAdminService, adminLoginService } from "./admin.service";
+import {
+  createAdminService,
+  adminLoginService,
+  getAdminProfileService,
+} from "./admin.service";
 import { IAdmin } from "./admin.interface";
 import config from "../../../config";
+import { JwtPayload } from "jsonwebtoken";
 
 export const createAdminController = catchAsync(
   async (req: Request, res: Response) => {
@@ -38,6 +43,20 @@ export const adminLoginController = catchAsync(
       data: {
         accessToken: result.accessToken,
       },
+    });
+  }
+);
+
+export const getAdminProfileController = catchAsync(
+  async (req: Request, res: Response) => {
+    const user = req.user;
+    const result = await getAdminProfileService(user as JwtPayload);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "admin profile retrieved successfully",
+      data: result,
     });
   }
 );

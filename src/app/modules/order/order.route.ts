@@ -19,7 +19,7 @@ router.post(
 );
 router.get(
   "/:id",
-  auth(USER_ROLE.BUYER, USER_ROLE.SELLER),
+  auth(USER_ROLE.BUYER, USER_ROLE.SELLER, USER_ROLE.ADMIN),
   getSingleOrderController
 );
 router.get(

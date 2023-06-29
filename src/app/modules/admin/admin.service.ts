@@ -9,7 +9,7 @@ import {
 import { Admin } from "./admin.model";
 import { createToken } from "../../../utils/jwtHelpers";
 import config from "../../../config";
-import { Secret } from "jsonwebtoken";
+import { JwtPayload, Secret } from "jsonwebtoken";
 
 export const createAdminService = async (
   data: IAdmin
@@ -41,4 +41,10 @@ export const adminLoginService = async (
     accessToken,
     refreshToken,
   };
+};
+
+export const getAdminProfileService = async (user: JwtPayload) => {
+  const { id, role } = user;
+  const result = await Admin.findOne({ _id: id, role });
+  return result;
 };
