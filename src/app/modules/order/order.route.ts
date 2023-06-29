@@ -17,7 +17,11 @@ router.post(
   auth(USER_ROLE.BUYER),
   createOrderController
 );
-router.get("/:id", auth(USER_ROLE.BUYER), getSingleOrderController);
+router.get(
+  "/:id",
+  auth(USER_ROLE.BUYER, USER_ROLE.SELLER),
+  getSingleOrderController
+);
 router.get(
   "/",
   auth(USER_ROLE.ADMIN, USER_ROLE.BUYER, USER_ROLE.SELLER),

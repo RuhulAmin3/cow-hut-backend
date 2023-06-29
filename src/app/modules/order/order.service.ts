@@ -91,12 +91,27 @@ export const getSingleOrderService = async (
   user: JwtPayload,
   id: string
 ): Promise<IOrder | null> => {
-  const order = await Order.findById(id).populate("cow").populate("buyer");
-  if (order && order.buyer.id != user.id) {
-    throw new ApiError(
-      httpStatus.UNAUTHORIZED,
-      "you are not owner of the order"
-    );
+  const order = await Order.findById(id)
+    .populate({
+      path: "cow",
+      populate: [{ path: "seller" }],
+    })
+    .populate("buyer");
+  if (user.role === USER_ROLE.SELLER) {
+    if (order && order.cow.seller != user.id) {
+      throw new ApiError(
+        httpStatus.UNAUTHORIZED,
+        "this order is not for your cow"
+      );
+    }
+  }
+  if (user.role === USER_ROLE.BUYER) {
+    if (order && order.buyer.id != user.id) {
+      throw new ApiError(
+        httpStatus.UNAUTHORIZED,
+        "you are not owner of the order"
+      );
+    }
   }
   return order;
 };
