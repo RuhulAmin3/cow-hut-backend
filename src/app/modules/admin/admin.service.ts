@@ -15,9 +15,10 @@ import { JwtPayload, Secret } from "jsonwebtoken";
 
 export const createAdminService = async (
   data: IAdmin
-): Promise<IAdmin | null> => {
+): Promise<Partial<IAdmin | null>> => {
   const result = await Admin.create(data);
-  return result;
+  const { password, ...restResult } = result._doc;
+  return restResult;
 };
 
 export const adminLoginService = async (

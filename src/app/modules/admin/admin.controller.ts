@@ -17,7 +17,7 @@ export const createAdminController = catchAsync(
   async (req: Request, res: Response) => {
     const adminData = req.body;
     const result = await createAdminService(adminData);
-    sendResponse<IAdmin>(res, {
+    sendResponse<Partial<IAdmin>>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: "admin created successfully",
