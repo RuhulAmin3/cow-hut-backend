@@ -102,7 +102,7 @@ export const updateAdminProfileService = async (
   );
   if (!updatedAdmin) {
     throw new ApiError(
-      httpStatus.NOT_FOUND,
+      httpStatus.BAD_REQUEST,
       "failed to update admin profile informaiton"
     );
   }
