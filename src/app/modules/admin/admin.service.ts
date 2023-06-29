@@ -17,7 +17,7 @@ export const createAdminService = async (
   data: IAdmin
 ): Promise<Partial<IAdmin | null>> => {
   const result = await Admin.create(data);
-  const { password, ...restResult } = result._doc;
+  const { password, ...restResult } = result.toObject();
   return restResult;
 };
 
@@ -46,10 +46,16 @@ export const adminLoginService = async (
   };
 };
 
-export const getAdminProfileService = async (user: JwtPayload) => {
+export const getAdminProfileService = async (
+  user: JwtPayload
+): Promise<Partial<IAdmin | null>> => {
   const { id, role } = user;
   const result = await Admin.findOne({ _id: id, role });
-  return result;
+  if (!result) {
+    throw new ApiError(httpStatus.NOT_FOUND, "admin profile data not found");
+  }
+  const { password, ...restResult } = result.toObject();
+  return restResult;
 };
 
 export const updateAdminProfileService = async (
