@@ -5,6 +5,7 @@ type AdminName = {
   middleName?: string;
   lastName: string;
 };
+
 export type IAdmin = {
   phoneNumber: string;
   role: "admin";

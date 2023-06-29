@@ -7,6 +7,8 @@ import { User } from "./user.model";
 import { userFilterAbleFields } from "./user.constant";
 import { JwtPayload } from "jsonwebtoken";
 import config from "../../../config";
+import { ApiError } from "../../../error/ApiError";
+import httpStatus from "http-status";
 
 export const createUserService = async (data: IUser): Promise<IUser> => {
   const result = await User.create(data);
@@ -99,6 +101,17 @@ export const updateProfileService = async (
   user: JwtPayload,
   data: IProfile
 ): Promise<IUser | null> => {
+  const { id, role } = user;
+  const renter = await User.findOne({ _id: id, role });
+  if (!renter) {
+    throw new ApiError(httpStatus.NOT_FOUND, "user does not exist");
+  }
+  if (renter && id != renter.id) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "you can update only your account. This is not your account"
+    );
+  }
   const { password, name, ...restData } = data;
   let hashPassword = password;
   if (password) {
@@ -107,7 +120,6 @@ export const updateProfileService = async (
       Number(config.bcrypt_solt_label)
     );
   }
-  const { id, role } = user;
   const updatedData = { ...restData, password: hashPassword };
 
   if (name && Object.keys(name).length > 0) {
