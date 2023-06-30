@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import httpStatus from "http-status";
 import { ApiError } from "../../../error/ApiError";
@@ -8,6 +9,7 @@ import mongoose from "mongoose";
 import { Order } from "./order.model";
 import { USER_ROLE } from "../../../enums/enum";
 import { JwtPayload } from "jsonwebtoken";
+import { ICow } from "../cow/cow.interface";
 
 export const createOrderService = async (
   data: IOrder
@@ -70,18 +72,20 @@ export const getAllOrderService = async (
   if (user.role === USER_ROLE.BUYER) {
     result = await Order.find({ buyer: user.id }).populate({
       path: "cow",
-      populate: [{ path: "seller" }],
+      populate: [{ path: "seller", select: "-password" }],
     });
   } else if (user.role === USER_ROLE.SELLER) {
     const allOrders = await Order.find({}).populate({
       path: "cow",
-      populate: [{ path: "seller" }],
+      populate: [{ path: "seller", select: "-password" }],
     });
-    result = allOrders.filter((order) => order.cow.seller.id === user.id);
+    result = allOrders.filter(
+      (order) => ((order.cow as ICow).seller as any).id === user.id
+    );
   } else {
     result = await Order.find({}).populate({
       path: "cow",
-      populate: [{ path: "seller" }],
+      populate: [{ path: "seller", select: "password" }],
     });
   }
   return result;
@@ -94,11 +98,11 @@ export const getSingleOrderService = async (
   const order = await Order.findById(id)
     .populate({
       path: "cow",
-      populate: [{ path: "seller" }],
+      populate: [{ path: "seller", select: "-password" }],
     })
-    .populate("buyer");
+    .populate("buyer", "-password");
   if (user.role === USER_ROLE.SELLER) {
-    if (order && order.cow.seller.id.toString() != user.id) {
+    if (order && ((order.cow as ICow).seller as any)?.id != user.id) {
       throw new ApiError(
         httpStatus.UNAUTHORIZED,
         "this order is not for your cow"
@@ -107,7 +111,7 @@ export const getSingleOrderService = async (
   }
 
   if (user.role === USER_ROLE.BUYER) {
-    if (order && order.buyer.id != user.id) {
+    if (order && (order.buyer as any).id != user.id) {
       throw new ApiError(
         httpStatus.UNAUTHORIZED,
         "you are not owner of this order"
