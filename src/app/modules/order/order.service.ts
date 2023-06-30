@@ -18,13 +18,6 @@ export const createOrderService = async (
   const cowDetails = await Cow.findById(cowId);
   const buyerDetails = await User.findById(buyerId);
 
-  if (cowDetails && buyerDetails && cowDetails?.price > buyerDetails?.budget) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      "you need to increase your budget"
-    );
-  }
-
   if (cowDetails && cowDetails.label === "sold out") {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
@@ -32,36 +25,50 @@ export const createOrderService = async (
     );
   }
 
+  if (cowDetails && buyerDetails && cowDetails?.price > buyerDetails?.budget) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "you need to increase your budget"
+    );
+  }
+
   const session = await mongoose.startSession();
   let orderData = null;
   try {
     session.startTransaction();
-    await Cow.findByIdAndUpdate(cowId, {
-      label: "sold out",
-    });
+    await Cow.findOneAndUpdate(
+      { _id: cowId },
+      {
+        label: "sold out",
+      },
+      { new: true, session }
+    );
     const buyerRestBudget =
       Number(buyerDetails?.budget) - Number(cowDetails?.price);
-    await User.findByIdAndUpdate(
-      buyerId,
+    await User.findOneAndUpdate(
+      { _id: buyerId },
       {
         budget: buyerRestBudget,
       },
-      { new: true }
+      { new: true, session }
     );
-    await User.findByIdAndUpdate(
-      cowDetails?.seller,
-      { income: cowDetails?.price },
-      { new: true }
-    );
-    orderData = await Order.create(data);
-    session.commitTransaction();
-    session.endSession();
+    const seller = await User.findById(cowDetails?.seller);
+    if (seller && cowDetails) {
+      await User.findOneAndUpdate(
+        { _id: cowDetails?.seller },
+        { income: seller.income + cowDetails?.price },
+        { new: true, session }
+      );
+    }
+    const order = await Order.create([data], { session });
+    orderData = order[0];
+    await session.commitTransaction();
+    await session.endSession();
   } catch (err) {
-    session.abortTransaction();
-    session.endSession();
+    await session.abortTransaction();
+    await session.endSession();
     throw err;
   }
-
   return orderData;
 };
 
