@@ -21,7 +21,7 @@ export const getSingleCowService = async (id: string) => {
 
 export const getAllCowService = async (
   filtersData: ICowFilters
-): Promise<IGenericResponse<ICow[]>> => {
+): Promise<IGenericResponse<ICow[] | null>> => {
   const {
     searchTerm,
     page = 1,
@@ -93,8 +93,6 @@ export const updateCowService = async (
   data: ICow,
   user: JwtPayload
 ): Promise<ICow | null> => {
-  // const result = await Cow.findByIdAndUpdate(id, data, { new: true });
-
   const cow = await Cow.findOne({ _id: id, seller: user.id });
   if (!cow) {
     throw new ApiError(

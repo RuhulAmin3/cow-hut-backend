@@ -98,7 +98,7 @@ export const getSingleOrderService = async (
     })
     .populate("buyer");
   if (user.role === USER_ROLE.SELLER) {
-    if (order && order.cow.seller.id != user.id) {
+    if (order && order.cow.seller.id.toString() != user.id) {
       throw new ApiError(
         httpStatus.UNAUTHORIZED,
         "this order is not for your cow"
@@ -110,7 +110,7 @@ export const getSingleOrderService = async (
     if (order && order.buyer.id != user.id) {
       throw new ApiError(
         httpStatus.UNAUTHORIZED,
-        "you are not owner of the order"
+        "you are not owner of this order"
       );
     }
   }

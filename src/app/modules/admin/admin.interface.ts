@@ -9,7 +9,7 @@ type AdminName = {
 export type IAdmin = {
   phoneNumber: string;
   role: "admin";
-  password?: string;
+  password: string;
   name: AdminName;
   address: string;
 };
