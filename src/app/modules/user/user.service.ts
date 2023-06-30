@@ -10,13 +10,16 @@ import { JwtPayload } from "jsonwebtoken";
 import config from "../../../config";
 import { ApiError } from "../../../error/ApiError";
 import httpStatus from "http-status";
+import { hashedPassword } from "../../../utils/protectPassword";
 
 export const createUserService = async (data: IUser): Promise<IUser> => {
   const result = await User.create(data);
   return result;
 };
 
-export const getAllUserService = async (filteredData: IUserFilterData) => {
+export const getAllUserService = async (
+  filteredData: IUserFilterData
+): Promise<IUser[] | null> => {
   const { searchTerm, page, limit, sortBy, sortOrder, ...restQuery } =
     filteredData || {};
 
@@ -49,22 +52,17 @@ export const getAllUserService = async (filteredData: IUserFilterData) => {
   }
 
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
-  const result = await User.find(whereCondition)
+  const result = await User.find(whereCondition, { password: 0 })
     .sort(sortCondition)
     .skip(skip)
     .limit(Number(limit));
-
-  const modifiedResult = result.map((user) => {
-    const { _id, password, ...restData } = user.toObject();
-    return restData;
-  });
-  return modifiedResult;
+  return result;
 };
 
 export const getSingleUserService = async (
   id: string
 ): Promise<IUser | null> => {
-  const result = await User.findById(id);
+  const result = await User.findById(id, { password: 0 });
   return result;
 };
 
@@ -72,16 +70,25 @@ export const updateUserService = async (
   id: string,
   data: IUser
 ): Promise<IUser | null> => {
-  const { name, ...restData } = data;
-  const userData = { ...restData };
-  if (Object.keys(name).length > 0) {
-    Object.keys(name).map((key) => {
+  const { name, password, ...restData } = data;
+  let hashPassword = password;
+  if (password) {
+    hashPassword = await hashedPassword(
+      password,
+      Number(config.bcrypt_solt_label)
+    );
+  }
+  const userData = { ...restData, password: hashPassword };
+  if (name && Object.keys(name).length > 0) {
+    Object.keys(name).forEach((key) => {
       const userNameKey = `name.${key}` as keyof typeof name;
       (userData as any)[userNameKey] = name[key as keyof typeof name];
     });
   }
 
-  const result = await User.findByIdAndUpdate(id, userData, { new: true });
+  const result = await User.findByIdAndUpdate(id, userData, {
+    new: true,
+  }).select("-password");
 
   return result;
 };

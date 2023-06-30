@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import bcrypt from "bcrypt";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import httpStatus from "http-status";
 import { ApiError } from "../../../error/ApiError";
@@ -12,6 +11,7 @@ import { Admin } from "./admin.model";
 import { createToken } from "../../../utils/jwtHelpers";
 import config from "../../../config";
 import { JwtPayload, Secret } from "jsonwebtoken";
+import { hashedPassword } from "../../../utils/protectPassword";
 
 export const createAdminService = async (
   data: IAdmin
@@ -50,12 +50,11 @@ export const getAdminProfileService = async (
   user: JwtPayload
 ): Promise<Partial<IAdmin | null>> => {
   const { id, role } = user;
-  const result = await Admin.findOne({ _id: id, role });
+  const result = await Admin.findOne({ _id: id, role }, { password: 0 });
   if (!result) {
     throw new ApiError(httpStatus.NOT_FOUND, "admin profile data not found");
   }
-  const { password, ...restResult } = result.toObject();
-  return restResult;
+  return result;
 };
 
 export const updateAdminProfileService = async (
@@ -78,7 +77,7 @@ export const updateAdminProfileService = async (
 
   let hashPassword = password;
   if (password) {
-    hashPassword = await bcrypt.hash(
+    hashPassword = await hashedPassword(
       password,
       Number(config.bcrypt_solt_label)
     );
