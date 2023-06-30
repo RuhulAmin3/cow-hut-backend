@@ -1,5 +1,6 @@
-import bcrypt from "bcrypt";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import bcrypt from "bcrypt";
 import { SortOrder } from "mongoose";
 import { calculatePagination } from "../../../shared/caculatePagination";
 import { IUserFilterData, IUser, IProfile } from "./user.interface";
@@ -15,9 +16,7 @@ export const createUserService = async (data: IUser): Promise<IUser> => {
   return result;
 };
 
-export const getAllUserService = async (
-  filteredData: IUserFilterData
-): Promise<IUser[] | null> => {
+export const getAllUserService = async (filteredData: IUserFilterData) => {
   const { searchTerm, page, limit, sortBy, sortOrder, ...restQuery } =
     filteredData || {};
 
@@ -55,7 +54,11 @@ export const getAllUserService = async (
     .skip(skip)
     .limit(Number(limit));
 
-  return result;
+  const modifiedResult = result.map((user) => {
+    const { _id, password, ...restData } = user.toObject();
+    return restData;
+  });
+  return modifiedResult;
 };
 
 export const getSingleUserService = async (

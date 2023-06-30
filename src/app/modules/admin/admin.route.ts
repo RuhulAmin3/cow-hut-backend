@@ -20,6 +20,7 @@ router.post(
   validationRequest(createAdminZodSchema),
   createAdminController
 );
+
 router.post(
   "/login",
   validationRequest(adminLoginZodSchema),
