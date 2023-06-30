@@ -16,10 +16,10 @@ export const auth =
           "you are unauthorized user"
         );
       }
-      let varifiedToken = null;
-      varifiedToken = varifyToken(token, config.jwt.secret as Secret);
-      req.user = varifiedToken;
-      if (roles.length > 0 && !roles.includes(varifiedToken.role)) {
+      let verifiedToken = null;
+      verifiedToken = varifyToken(token, config.jwt.secret as Secret);
+      req.user = verifiedToken;
+      if (roles.length > 0 && !roles.includes(verifiedToken.role)) {
         throw new ApiError(httpStatus.FORBIDDEN, "you are forbidden user");
       }
       next();

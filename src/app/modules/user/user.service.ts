@@ -94,7 +94,7 @@ export const updateUserService = async (
 };
 
 export const deleteUserService = async (id: string): Promise<IUser | null> => {
-  const result = await User.findOneAndDelete({ _id: id });
+  const result = await User.findOneAndDelete({ _id: id }).select("-password");
   return result;
 };
 
@@ -103,7 +103,7 @@ export const profileService = async (
   user: JwtPayload
 ): Promise<IUser | null> => {
   const { id, role } = user;
-  const result = await User.findOne({ _id: id, role });
+  const result = await User.findOne({ _id: id, role }, { password: 0 });
   return result;
 };
 
@@ -125,8 +125,8 @@ export const updateProfileService = async (
   const { password, name, ...restData } = data;
   let hashPassword = password;
   if (password) {
-    hashPassword = await bcrypt.hash(
-      password as string,
+    hashPassword = await hashedPassword(
+      password,
       Number(config.bcrypt_solt_label)
     );
   }
@@ -140,6 +140,6 @@ export const updateProfileService = async (
   }
   const result = await User.findByIdAndUpdate({ _id: id, role }, updatedData, {
     new: true,
-  });
+  }).select("-password");
   return result;
 };
