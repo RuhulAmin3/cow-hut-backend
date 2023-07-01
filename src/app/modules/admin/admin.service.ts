@@ -15,9 +15,13 @@ import { hashedPassword } from "../../../utils/protectPassword";
 
 export const createAdminService = async (
   data: IAdmin
-): Promise<Partial<IAdmin | null>> => {
+): Promise<IAdmin | null> => {
   const result = await Admin.create(data);
-  const { password, ...restResult } = result.toObject();
+  if (!result) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "failed to create admin");
+  }
+  const restResult = await Admin.findById(result.id).select("-password");
+  // const { password, ...restResult } = result.toObject();
   return restResult;
 };
 
@@ -48,7 +52,7 @@ export const adminLoginService = async (
 
 export const getAdminProfileService = async (
   user: JwtPayload
-): Promise<Partial<IAdmin | null>> => {
+): Promise<IAdmin | null> => {
   const { id, role } = user;
   const result = await Admin.findOne({ _id: id, role }, { password: 0 });
   if (!result) {
@@ -61,7 +65,7 @@ export const updateAdminProfileService = async (
   user: JwtPayload,
   id: string,
   data: IAdmin
-): Promise<Partial<IAdmin | null>> => {
+): Promise<IAdmin | null> => {
   const { name, password, ...restData } = data;
   const admin = await Admin.findOne({ _id: user.id, role: user.role });
   if (!admin) {
@@ -98,7 +102,7 @@ export const updateAdminProfileService = async (
     },
     updateData,
     { new: true }
-  );
+  ).select("-password");
   if (!updatedAdmin) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
@@ -106,7 +110,7 @@ export const updateAdminProfileService = async (
     );
   }
 
-  const { password: updatePassword, ...restUpdateAdminData } =
-    updatedAdmin.toObject();
-  return restUpdateAdminData;
+  // const { password: updatePassword, ...restUpdateAdminData } =
+  //   updatedAdmin.toObject();
+  return updatedAdmin;
 };

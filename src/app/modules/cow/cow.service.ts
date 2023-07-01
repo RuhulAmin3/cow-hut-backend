@@ -109,7 +109,10 @@ export const updateCowService = async (
   return result;
 };
 
-export const deleteCowService = async (id: string, user: JwtPayload) => {
+export const deleteCowService = async (
+  id: string,
+  user: JwtPayload
+): Promise<ICow | null> => {
   const cow = await Cow.findOne({ _id: id, seller: user.id });
   if (!cow) {
     throw new ApiError(

@@ -9,11 +9,13 @@ import { createToken, varifyToken } from "../../../utils/jwtHelpers";
 import config from "../../../config";
 import { Secret } from "jsonwebtoken";
 
-export const createUserService = async (
-  data: IUser
-): Promise<Partial<IUser>> => {
+export const createUserService = async (data: IUser): Promise<IUser | null> => {
   const result = await User.create(data);
-  const { password, ...restResult } = result.toObject();
+  if (!result) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "failed to create user");
+  }
+  const restResult = await User.findById(result.id).select("-password");
+  // const { password, ...restResult } = result.toObject();
   return restResult;
 };
 

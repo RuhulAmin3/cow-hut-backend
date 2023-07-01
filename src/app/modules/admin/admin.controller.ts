@@ -17,7 +17,7 @@ export const createAdminController = catchAsync(
   async (req: Request, res: Response) => {
     const adminData = req.body;
     const result = await createAdminService(adminData);
-    sendResponse<Partial<IAdmin>>(res, {
+    sendResponse<IAdmin>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: "admin created successfully",
@@ -53,7 +53,7 @@ export const getAdminProfileController = catchAsync(
     const user = req.user;
     const result = await getAdminProfileService(user as JwtPayload);
 
-    sendResponse(res, {
+    sendResponse<IAdmin>(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: "admin profile retrieved successfully",
