@@ -35,8 +35,6 @@ Live Link: https://cow-hut-assignment-four.vercel.app
 - Route: https://cow-hut-assignment-four.vercel.app/api/v1/orders (POST)
 - Route: https://cow-hut-assignment-four.vercel.app/api/v1/orders (GET)
 
-### Bonus part
-
 #### Admin
 
 - Route: https://cow-hut-assignment-four.vercel.app/api/v1/admins/create-admin (POST)
